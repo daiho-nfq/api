@@ -10,17 +10,23 @@ class ProductResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  Request  $request
+     * @param Request $request
      * @return array
      */
     public function toArray($request)
     {
         return [
+            'id' => $this->id,
             'name' => $this->name,
             'description' => $this->detail,
             'price' => $this->price,
-            'stock' => $this->stock,
+            'stock' => $this->stock === 0 ? 'Out of stock' : $this->stock,
             'discount' => $this->discount,
+            'totalPrice' => round(((1 - ($this->discount / 100))) * $this->price, 2),
+            'rating' => $this->reviews->count() > 0 ? round($this->reviews->sum('star') / $this->reviews->count(), 2) : 'No rating',
+            'href' => [
+                'review' => route('reviews.index', $this->id)
+            ]
         ];
     }
 }
